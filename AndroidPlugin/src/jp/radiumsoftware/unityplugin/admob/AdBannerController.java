@@ -1,4 +1,7 @@
+
 package jp.radiumsoftware.unityplugin.admob;
+
+import java.util.HashMap;
 
 import com.google.ads.*;
 
@@ -10,19 +13,38 @@ import android.widget.RelativeLayout.LayoutParams;
 
 public class AdBannerController {
     static final int bannerViewId = 0x661ad306; // "ggl admob"
-    
-    static public void tryCreateBanner(final Activity activity, final String publisher, final String testDevice) {
+
+    enum AdBannerPosition {
+        Top, Bottom;
+    }
+
+    private static HashMap<String, Integer> positionMap;
+    static {
+        positionMap = new HashMap<String, Integer>();
+        positionMap.put(AdBannerPosition.Top.name(), Gravity.TOP);
+        positionMap.put(AdBannerPosition.Bottom.name(), Gravity.BOTTOM);
+    }
+
+    static public void tryCreateBanner(final Activity activity, final String publisher,
+            final String testDevice) {
+        tryCreateBanner(activity, publisher, testDevice, AdBannerPosition.Bottom.name());
+    }
+
+    static public void tryCreateBanner(final Activity activity, final String publisher,
+            final String testDevice, final String position) {
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                AdView adBanner = (AdView)activity.findViewById(bannerViewId);
+                AdView adBanner = (AdView) activity.findViewById(bannerViewId);
                 if (adBanner == null) {
                     Log.d("AdMobPlugin", "creates an ad banner.");
                     // Make a layout for ad banner.
                     RelativeLayout layout = new RelativeLayout(activity);
-                    activity.addContentView(layout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-                    layout.setGravity(Gravity.BOTTOM);
+                    activity.addContentView(layout, new LayoutParams(LayoutParams.MATCH_PARENT,
+                            LayoutParams.MATCH_PARENT));
+                    int gravity = positionMap.get(position);
+                    layout.setGravity(gravity);
                     // Make a banner.
-                    adBanner = new AdView(activity, AdSize.BANNER, publisher);
+                    adBanner = new AdView(activity, AdSize.SMART_BANNER, publisher);
                     adBanner.setId(bannerViewId);
                     layout.addView(adBanner);
                 }
