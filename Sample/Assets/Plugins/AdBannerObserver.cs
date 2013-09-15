@@ -1,36 +1,57 @@
 using UnityEngine;
 using System.Collections;
 
-public class AdBannerObserver : MonoBehaviour {
-    private static AdBannerObserver sInstance;
+public enum AdBannerPosition
+{
+	Top,
+	Bottom
+}
+
+public class AdBannerObserver : MonoBehaviour
+{
+	private static AdBannerObserver sInstance;
+	
+	public static void Initialize ()
+	{
+		Initialize (null, null, 0.0f);
+	}
     
-    public static void Initialize() {
-        Initialize(null, null, 0.0f);
-    }
+	public static void Initialize (string publisherId, string testDeviceId, float refresh)
+	{
+		Initialize (publisherId, testDeviceId, refresh, AdBannerPosition.Bottom);
+	}
+
+	public static void Initialize (string publisherId, string testDeviceId, float refresh, AdBannerPosition position)
+	{
+		if (sInstance == null) {
+			// Make a game object for observing.
+			GameObject go = new GameObject ("_AdBannerObserver");
+			go.hideFlags = HideFlags.HideAndDontSave;
+			DontDestroyOnLoad (go);
+			// Add and initialize this component.
+			sInstance = go.AddComponent<AdBannerObserver> ();
+			sInstance.mAdMobPublisherId = publisherId;
+			sInstance.mAdMobTestDeviceId = testDeviceId;
+			sInstance.mRefreshTime = refresh;
+			sInstance.mPosition = position;
+		}
+	}
     
-    public static void Initialize(string publisherId, string testDeviceId, float refresh) {
-        if (sInstance == null) {
-            // Make a game object for observing.
-            GameObject go = new GameObject("_AdBannerObserver");
-            go.hideFlags = HideFlags.HideAndDontSave;
-            DontDestroyOnLoad(go);
-            // Add and initialize this component.
-            sInstance = go.AddComponent<AdBannerObserver>();
-            sInstance.mAdMobPublisherId = publisherId;
-            sInstance.mAdMobTestDeviceId = testDeviceId;
-            sInstance.mRefreshTime = refresh;
-        }
-    }
+	public string mAdMobPublisherId;
+	public string mAdMobTestDeviceId;
+	public float mRefreshTime;
+	public AdBannerPosition mPosition;
     
-    public string mAdMobPublisherId;
-    public string mAdMobTestDeviceId;
-    public float mRefreshTime;
-    
-    IEnumerator Start () {
+	IEnumerator Start ()
+	{
 #if UNITY_IPHONE
         ADBannerView banner = new ADBannerView();
         banner.autoSize = true;
-        banner.autoPosition = ADPosition.Bottom;
+		if(mPosition == AdBannerPosition.top) {
+	        banner.autoPosition = ADPosition.Top;
+		} else {
+	        banner.autoPosition = ADPosition.Bottom;
+		}
         
         while (true) {
             if (banner.error != null) {
@@ -47,11 +68,11 @@ public class AdBannerObserver : MonoBehaviour {
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
         while (true) {
-            plugin.CallStatic("tryCreateBanner", activity, mAdMobPublisherId, mAdMobTestDeviceId);
+            plugin.CallStatic("tryCreateBanner", activity, mAdMobPublisherId, mAdMobTestDeviceId, mPosition.ToString());
             yield return new WaitForSeconds(Mathf.Max(30.0f, mRefreshTime));
         }
 #else
-        return null;
+		return null;
 #endif
-    }
+	}
 }
