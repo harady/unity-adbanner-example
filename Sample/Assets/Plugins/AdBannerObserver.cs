@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// adbanner position
+/// </summary>
 public enum AdBannerPosition
 {
 	Top,
@@ -16,12 +19,8 @@ public class AdBannerObserver : MonoBehaviour
 		Initialize (null, null, 0.0f);
 	}
     
-	public static void Initialize (string publisherId, string testDeviceId, float refresh)
-	{
-		Initialize (publisherId, testDeviceId, refresh, AdBannerPosition.Bottom);
-	}
-
-	public static void Initialize (string publisherId, string testDeviceId, float refresh, AdBannerPosition position)
+	public static void Initialize (string publisherId, string testDeviceId, float refresh, 
+		AdBannerPosition position=AdBannerPosition.Bottom)
 	{
 		if (sInstance == null) {
 			// Make a game object for observing.
