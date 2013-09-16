@@ -6,7 +6,7 @@ public class Tester : MonoBehaviour
 	#region MonoBehaviour Lifecycle Methods
 	void Start ()
 	{
-		AdBannerObserver.Initialize ("a14f12dd9e4d1e0", null, 30.0f);
+		AdBannerObserver.Initialize ("ca-app-pub-3167914489550481/5145242950", null, 30.0f);
 	}
 	#endregion
 }
